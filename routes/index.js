@@ -1,24 +1,17 @@
 const item = require("../pages/items");
+const authenticate = require("./middleware");
 
 function itemRoutes(fastify, options, done) {
-    fastify.get("/get-item", (req, reply) => {
-        console.log("fd")
-        reply.send(item);
-    });
+  fastify.get("/get-item", { preHandler: authenticate }, (req, reply) => {
+    reply.send(item);
+  });
 
-    fastify.post("/add-item", (req, reply) => {
-        var user = req.body;
-        reply.send(user);
-    });
+  fastify.post("/add-item", { preHandler: authenticate }, (req, reply) => {
+    var user = req.body;
+    reply.send(user);
+  });
 
-    // fastify.all("/*", (req, reply) => {
-    //     console.log("Capture * called");
-    //     return handle(req.raw, reply.raw).then(() => {
-    //         reply.sent = true;
-    //     });
-    // });
-
-    done();
+  done();
 }
 
 module.exports = itemRoutes;

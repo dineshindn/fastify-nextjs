@@ -3,6 +3,9 @@ const fastify = require("fastify")({
   pluginTimeout: 0,
 });
 const Next = require("next");
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = "kos*nwSN21Z^";
+const fastifyCors = require("@fastify/cors");
 
 const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== "production";
@@ -14,11 +17,28 @@ fastify.get("/api/:location", (req, reply) => {
   return reply.send({ body: { location: req.params.location } });
 });
 
-const items = require("./pages/items");
+
+fastify.register(fastifyCors, {
+  origin: "*",
+});
 
 fastify.register(require("./routes/index"));
 fastify.register(require("./routes/index1"));
 
+fastify.post("/login", (request, reply) => {
+  // Simulating user authentication
+  const { username, password } = request.body;
+  if (username === "admin" && password === "din") {
+    // Generate a JWT token
+    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
+    reply.send({ token });
+  } else {
+    reply.code(401).send({ message: "Invalid credentials" });
+  }
+});
+
+
+// const items = require("./pages/items");
 // fastify.register((fastify, opts, next) => {
   
 //   const app = Next({ dev });
@@ -27,7 +47,6 @@ fastify.register(require("./routes/index1"));
 //     .prepare()
 //     .then(() => {
 
-      
 //       if (dev) {
 //         fastify.get('/_next/*', (req, reply) => {
 //           return handle(req.raw, reply.raw).then(() => {
